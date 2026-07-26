@@ -3,8 +3,9 @@ set -e
 
 # Default settings
 IMAGE_NAME="${IMAGE_NAME:-ajitjadhav28/kernel-bench:6.12.10}"
-MEMORY_LIMIT="${MEMORY_LIMIT:-6g}"
+MEMORY_LIMIT="${MEMORY_LIMIT:-}"
 KCONFIG="${KCONFIG:-defconfig}"
+TARGET="${TARGET:-vmlinux}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 JOBS="${JOBS:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
 
@@ -13,8 +14,9 @@ echo "          LAUNCHING KERNEL BUILD BENCHMARK                "
 echo "=========================================================="
 echo " Image Name   : ${IMAGE_NAME}"
 echo " Platform     : ${PLATFORM}"
-echo " RAM Limit    : ${MEMORY_LIMIT}"
+echo " RAM Limit    : ${MEMORY_LIMIT:-Unlimited}"
 echo " Kernel Config: ${KCONFIG}"
+echo " Build Target : ${TARGET}"
 echo " Parallel Jobs: ${JOBS}"
 echo "=========================================================="
 echo ""
@@ -31,13 +33,20 @@ if [ "${LOCAL_PLATFORM}" != "${PLATFORM}" ]; then
     echo ""
 fi
 
-echo "Running Docker container restricted to ${MEMORY_LIMIT} RAM on ${PLATFORM}..."
+RAM_MSG="${MEMORY_LIMIT:-unrestricted}"
+echo "Running Docker container (${RAM_MSG} RAM) on ${PLATFORM}..."
 echo "----------------------------------------------------------"
 
-# Execute Docker container with RAM limit of 6GB and explicit platform tag
+DOCKER_ARGS=()
+if [ -n "${MEMORY_LIMIT}" ]; then
+    DOCKER_ARGS+=("--memory=${MEMORY_LIMIT}")
+fi
+
+# Execute Docker container with optional RAM limit and explicit platform tag
 docker run --rm \
     --platform="${PLATFORM}" \
-    --memory="${MEMORY_LIMIT}" \
+    "${DOCKER_ARGS[@]}" \
     -e KCONFIG="${KCONFIG}" \
+    -e TARGET="${TARGET}" \
     -e JOBS="${JOBS}" \
     "${IMAGE_NAME}" "$@"

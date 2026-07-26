@@ -16,10 +16,11 @@ The pre-built benchmark image is available on Docker Hub:
 
 ## Features
 
-- **Platform Target**: Enforces `--platform=linux/amd64` architecture target.
+- **Platform Target**: Configurable via `--platform` (defaults to `linux/amd64`).
+- **Standardized Build Target**: Uses `vmlinux` as the default build target across all platforms for identical, fair benchmarking.
 - **Runtime Tarball Extraction**: Measures the time required to un-tar the Linux kernel source archive (`/usr/src/linux.tar.xz`).
-- **Runtime Compilation**: Measures kernel configuration & parallel compilation time (`bzImage`).
-- **RAM Constraint**: Includes a launch script (`run_benchmark.sh`) configured with a **6 GB RAM limit** (`--memory="6g"`).
+- **Runtime Compilation**: Measures kernel configuration & parallel compilation time.
+- **Unrestricted Memory by Default**: Runs without memory restrictions by default (RAM limit can be set via `MEMORY_LIMIT`).
 - **Combined Benchmark Summary**: Displays breakdown of:
   1. Extraction Time (seconds)
   2. Compilation Time (seconds)
@@ -30,9 +31,9 @@ The pre-built benchmark image is available on Docker Hub:
 
 ## Quick Start
 
-### 1. Run Benchmark directly from Docker Hub (6GB RAM Limit)
+### 1. Run Benchmark directly from Docker Hub
 ```bash
-docker run --rm --platform=linux/amd64 --memory="6g" ajitjadhav28/kernel-bench:6.12.10
+docker run --rm --platform=linux/amd64 ajitjadhav28/kernel-bench:6.12.10
 ```
 
 ### 2. Using the Launch Script
@@ -44,9 +45,19 @@ docker run --rm --platform=linux/amd64 --memory="6g" ajitjadhav28/kernel-bench:6
 
 ## Customization Options
 
-### Fast Benchmark (`tinyconfig` with 6GB RAM Limit)
+### Set RAM Limit (e.g., 6GB)
+```bash
+MEMORY_LIMIT=6g ./run_benchmark.sh
+```
+
+### Fast Benchmark (`tinyconfig`)
 ```bash
 KCONFIG=tinyconfig ./run_benchmark.sh
+```
+
+### ARM64 Target Platform
+```bash
+PLATFORM=linux/arm64 ./run_benchmark.sh
 ```
 
 ### Build Image Locally

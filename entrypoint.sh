@@ -1,17 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-# Detect architecture and select appropriate default target if not specified
+# Set default target to vmlinux across all architectures for consistent benchmarking
+TARGET="${TARGET:-vmlinux}"
 ARCH=$(uname -m)
-if [ -z "${TARGET}" ]; then
-    if [ "${ARCH}" = "x86_64" ]; then
-        TARGET="bzImage"
-    elif [ "${ARCH}" = "aarch64" ]; then
-        TARGET="Image"
-    else
-        TARGET="vmlinux"
-    fi
-fi
 
 JOBS="${JOBS:-$(nproc)}"
 KCONFIG="${KCONFIG:-defconfig}"
